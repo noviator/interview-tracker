@@ -1,0 +1,182 @@
+<%- include('partials/header'); -%>
+
+
+
+
+
+
+
+    <div class="container">
+        <!-- Button to Open the Modal -->
+        <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#myModal">New Question</button>
+        <!-- The Modal -->
+        <div class="modal fade" id="myModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+
+                    <!-- Modal Header -->
+                    <div class="modal-header">
+                        <h4 class="modal-title">Add Question</h4>
+                        <button type="button" class="btn-close" data-dismiss="modal"></button>
+                    </div>
+
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <form>
+                            <div class="form-group">
+                                <label for="qnHeadId">Enter the question</label>
+                                <input class="form-control qnHead" id="qnHeadId" placeholder="Question" name="qnHead">
+                                <small id="qnHeadError" class="text-danger"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="qnLinkId">Enter the link for question</label>
+                                <input class="form-control qnLink" id="qnLinkId" placeholder="link" name="qnLink">
+                                <small id="qnLinkError" class="text-danger"></small>
+                            </div>
+                            <div class="form-group">
+                                <label for="topicSelect">Select Topic</label>
+                                <select class="form-control" name="topicSelect" id="topicSelect">
+                                    <%  topics.forEach(oneTopic2=>{ %>
+                                        <option><%= oneTopic2.topic  %> </option>
+                                    <%  }) %>
+                                </select>
+                            </div>
+                            <!-- <input type="submit" value="SUBMIT"></input> -->
+                            <button type="submit" class="btn btn-success ">SUBMIT QUESTION</button>
+                        </form>
+                    </div>
+
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+    <div class="container">
+        <div class="row">
+            <% if(topics.length>0){ let i=0;%>
+                <% topics.forEach(oneTopic=>{ %>
+                    <div class="col-sm-12 col-md-4 mb-4">
+
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <%  if(i%2===0){ %>
+                                    <a href="/programming/<%= oneTopic.topic.toLowerCase() %>" target="_self" class="btn h-100 stretched-link  btn-outline-primary  btn-lg container-fluid">
+                                        <%= oneTopic.topic %>
+                                    </a>
+
+                                    <% }else{ %>
+                                        <a href="/programming/<%= oneTopic.topic.toLowerCase() %>" target="_self" class="btn h-100 stretched-link btn-outline-success btn-lg container-fluid">
+                                            <%= oneTopic.topic %>
+
+                                                <% }i++ %>
+                                        </a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <%})%>
+                        <% } else { %>
+                            <h1 class="nothingDisp"><kbd>Nothing to display here</kbd></h1>
+                            <% } %>
+        </div>
+    </div>
+
+
+    <!-- Toast -->
+    <div aria-live="polite" aria-atomic="true" style="position: absolute; top:15% ;right:2% ; min-width: 400px; min-height: 200px;">
+        <!-- <button type="button" class="btn btn-primary" id="myBtn">Show Toast</button> -->
+
+        <div class="toast" style="position: absolute; top: 0; right: 0;">
+            <div class="toast-header bg-success">
+                <strong class="mr-auto text-white">Success</strong>
+                <button type="button" class="btn-close" data-dismiss="toast" aria-label="Close" style="position: absolute; top: 5; right: 5;"></button>
+            </div>
+            <div class="toast-body">Question added successfully</div>
+        </div>
+    </div>
+
+
+
+    <!-- toast script -->
+    <!-- <script>
+        $(document).ready(function() {
+            $("#myBtn").click(function() {
+                $('.toast').toast({
+                    delay: 2000
+                });
+                $('.toast').toast('show');
+            });
+        });
+    </script> -->
+    <script>
+        const form = document.querySelector('form');
+
+        const qnHeadError = document.querySelector("#qnHeadError");
+        const qnLinkError = document.querySelector("#qnLinkError");
+
+        form.addEventListener('submit', async(event) => {
+            event.preventDefault();
+
+            qnHeadError.textContent = '';
+            qnLinkError.textContent = '';
+
+
+            const qnHead = form.qnHeadId.value;
+            const qnLink = form.qnLink.value;
+            const topicSelect = form.topicSelect.value;
+            try {
+                const res = await fetch('/programming', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        qnHead,
+                        qnLink,
+                        topicSelect,
+
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await res.json();
+                // console.log(data);
+                if (data.errors) {
+                    qnHeadError.textContent = data.errors.questionHeading;
+                    qnLinkError.textContent = data.errors.link;
+                }
+                // console.log(data);
+
+                if (data.newQn) {
+                    // Hide modal
+                    $("#myModal").modal('hide');
+
+                    // show toast on success
+                    $('.toast').toast({
+                        delay: 2000
+                    });
+                    $('.toast').toast('show');
+
+                    // clear form contents
+                    $('#myModal').on('hidden.bs.modal', function() {
+                        $(this).find('form').trigger('reset');
+                    })
+
+
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        })
+    </script>
+
+    <%- include('partials/footer'); -%>

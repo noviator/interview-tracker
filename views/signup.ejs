@@ -1,0 +1,109 @@
+<!-- <!DOCTYPE html> -->
+<%- include('partials/header'); -%>
+
+
+    <div>
+        <form class="form-container">
+            <label class="headingText">Sign up</label>
+            <!-- <label for="email"><b>Email</b></label> -->
+            <input type="text" placeholder="Enter your Name" required oninvalid="this.setCustomValidity('Please Enter a name')" oninput="setCustomValidity('')" name="nameUser">
+            <p class="userName error"> </p>
+            <input type="text" placeholder="Enter E-mail" name="email" required oninvalid="this.setCustomValidity('Please Enter an email')" oninput="setCustomValidity('')" id="signupEmail">
+            <div class="email error"> </div>
+            <!-- <label for="password"><b>Password</b></label> -->
+            <input type="password" placeholder="Enter password" name="password" id="signupPass">
+            <div class="password error"> </div>
+            <input type="password" placeholder="Confirm Password" name="passwordConfirm" id="signupPassConfirm">
+            <div class="passwordConfirm error"> </div>
+            <input type="checkbox" onclick="passFun()" id="check"> Show Password
+            <input type="submit" value="Signup"></input>
+            <a href="/login">Already have an account? Login</a>
+
+        </form>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+
+        // DOM , selecting the div with class .email and .error and ...
+        const emailError = document.querySelector('.email.error');
+        const passwordError = document.querySelector('.password.error');
+        const userNameError = document.querySelector('.userName.error');
+        const passwordConfirmError = document.querySelector('.passwordConfirm.error')
+
+
+        // fires when submit button is pressed/signup pressed
+        form.addEventListener('submit', async(event) => {
+            event.preventDefault();
+
+            //resetting/clearing errors <div> every time submit is clicked 
+            emailError.textContent = '';
+            passwordError.textContent = '';
+            userNameError.textContent = '';
+            passwordConfirmError.textContent = '';
+
+
+            //values from form
+            const email = form.email.value;
+            const password = form.password.value;
+            const userName = form.nameUser.value;
+            const passwordConfirm = form.passwordConfirm.value;
+
+
+            try {
+                const res = await fetch('/signup', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        userName,
+                        email,
+                        password,
+                        passwordConfirm,
+
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await res.json(); // getting data of response object >
+                // this data is used to send back to frontend in authcontroller.js----> res.status(201).json({ user: user._id }); ,res.status(400).json({ errors });
+                // inside the signup_post
+
+                // console.log(data);
+
+                // consle.log(data.errors);
+
+                //when there is error populate the div with the error , is the data object contains error
+                if (data.errors) {
+                    userNameError.textContent = data.errors.userName;
+                    emailError.textContent = data.errors.email;
+                    passwordError.textContent = data.errors.password;
+                    passwordConfirmError.textContent = data.errors.passwordConfirm;
+                }
+
+                // if the data object  contains the user object / dosent contain error
+                if (data.user) {
+                    location.assign('/'); //redirect from frontend // assign the location to "/ " page 
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        });
+
+
+
+
+        let x = document.getElementById("signupPass");
+        let y = document.getElementById("signupPassConfirm")
+
+        function passFun() {
+            if (x.type === "password") {
+                x.type = "text";
+                y.type = "text";
+            } else {
+                x.type = "password";
+                y.type = "password";
+            }
+        }
+    </script>
+
+    <%- include('partials/footer'); -%>

@@ -1,0 +1,38 @@
+<%- include('partials/header'); -%>
+
+
+
+    <div class="container">
+        <div class="row">
+            <% if(datas.length>0){ let i=0;%>
+                <% datas.forEach(data=>{ %>
+                    <div class="col-sm-12 col-md-4 mb-4">
+
+                        <div class="card h-100">
+                            <div class="card-body text-center">
+                                <%  if(i%2===0){ %>
+                                    <a href="<%=data.link  %>" target="_self" class="btn h-100 stretched-link  btn-outline-primary  btn-lg container-fluid">
+                                        <%= data.questionHeading %>
+                                    </a>
+                                    <% }else{ %>
+                                        <a href="<%=data.link  %>" target="_self" class="btn h-100 stretched-link btn-outline-success btn-lg container-fluid">
+                                            <%= data.questionHeading %>
+
+                                                <% }i++ %>
+
+                                        </a>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <%})%>
+                        <% } else { %>
+                            <h1 class="nothingDisp"><kbd>Nothing to display here</kbd></h1>
+                            <% } %>
+        </div>
+    </div>
+
+
+    <%- include('partials/footer'); -%>
